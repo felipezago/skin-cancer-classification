@@ -9,7 +9,6 @@ import pandas as pd
 import imageio
 import matplotlib.pyplot as plt
 
-
 data_dir = "classes"
     
 metadata = pd.read_csv('HAM10000_metadata.csv')  

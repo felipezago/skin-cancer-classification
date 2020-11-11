@@ -15,7 +15,7 @@ import torch
 metadata = pd.read_csv('HAM10000_metadata.csv')
 print(metadata.shape)
 
-print(torch.cuda.FloatTensor())
+print(torch.cuda.is_available())
 
 # armazena as sete classes do dataset na variável "le"
 

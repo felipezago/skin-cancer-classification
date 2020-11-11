@@ -96,7 +96,6 @@ if __name__ == '__main__':
     for i in range(len(label)):
         print(label[i],":", freq[i])
     
-    
     norm_mean = (0.4914, 0.4822, 0.4465)
     norm_std = (0.2023, 0.1994, 0.2010)
     
