@@ -13,6 +13,7 @@ print(classes)
 for classe in classes:
     os.mkdir('classes/{}'.format(classe))
 
-# retira as imagens do diretório que elas estão, e coloca em sua respectiva pasta, com base na sua classe
+# retira as imagens do diretório que elas estão, e coloca em sua respectiva pasta, 
+# com base na sua classe
 for idx, linha in metadados.iterrows():    
     os.rename('ham10000/imagens/{}.jpg'.format(linha['image_id']), 'classes/{}/{}.jpg'.format(linha['dx'], linha['image_id']))

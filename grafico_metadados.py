@@ -13,9 +13,6 @@ import matplotlib.pyplot as plt
 import torch
     
 metadata = pd.read_csv('HAM10000_metadata.csv')
-print(metadata.shape)
-
-print(torch.cuda.is_available())
 
 # armazena as sete classes do dataset na variável "le"
 
@@ -43,15 +40,21 @@ ax1.set_ylabel('Contagem', size=50)
 #informa o titulo do gráfico
 ax1.set_title('Tipo de cancer', size = 50)
 
+#faz um gráfico referente a cada sexo
+
 ax2 = fig.add_subplot(222)
 metadata['sex'].value_counts().plot(kind='bar', ax=ax2)
 ax2.set_ylabel('Contagem', size=50)
 ax2.set_title('Sexo', size=50);
 
+#faz um gráfico referente a cada local do corpo
+
 ax3 = fig.add_subplot(223)
 metadata['localization'].value_counts().plot(kind='bar')
 ax3.set_ylabel('Contagem', size=50)
 ax3.set_title('Local do corpo', size=50)
+
+#faz um gráfico referente a idade das pessoas das imagens de cancer
 
 ax4 = fig.add_subplot(224)
 sample_age = metadata[pd.notnull(metadata['age'])]
@@ -59,5 +62,6 @@ sns.distplot(sample_age['age'], fit=stats.norm, color='red');
 ax4.set_title('Idade', size = 50)
 ax4.set_xlabel('Ano', size=50)
 
+# mostra o grafico
 plt.tight_layout()
 plt.show()

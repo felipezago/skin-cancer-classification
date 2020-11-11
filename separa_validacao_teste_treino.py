@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Nov 10 10:47:25 2020
+Created on Tue Nov 6 10:47:25 2020
 
 @author: felip
 """
@@ -171,7 +171,6 @@ if __name__ == '__main__':
         img = img / 2 + 0.5     
         npimg = img.numpy()
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    
     
     # Pegar algumas imagens de treinamento para exibição
     iterador = iter(train_data_loader)
