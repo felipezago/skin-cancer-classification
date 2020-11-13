@@ -7,11 +7,15 @@ Created on Tue Nov 6 10:47:25 2020
 
 import torch as th
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 import torchvision
 import numpy as np
 import torchvision.transforms as transforms
 import pandas as pd
 import matplotlib.pyplot as plt
+import torch.optim as optim
+from sklearn.metrics import accuracy_score
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
@@ -73,6 +77,8 @@ if __name__ == '__main__':
     label = [ 'akiec', 'bcc','bkl','df','mel', 'nv',  'vasc']
     classes = [ 'ceratoses actínicas', 'carcinoma basocelular', 'lesoes de ceratose benignas', 
                'dermatofibroma','melanoma', 'nevos melanocíticos', 'lesões vasculares']
+    
+    num_classes = len(classes)
     
     def estimar_frequencia(label):
         #DEFINE UM ARRAY DO MESMO TAMANHO QUE O LABEL, APENAS COM ZEROS.
@@ -178,4 +184,60 @@ if __name__ == '__main__':
     
     # mostrar tais imagens 
     imshow(torchvision.utils.make_grid(imagens))
+
+    class LeNet(nn.Module):
+        def __init__(self):
+            super(LeNet, self).__init__()
+            self.conv1 = nn.Conv2d(3, 6, (5,5), padding=2)
+            self.conv2 = nn.Conv2d(6, 16, (5,5))
+            self.fc1   = nn.Linear(16*54*54, 120)
+            self.fc2   = nn.Linear(120, 84)
+            self.fc3   = nn.Linear(84, num_classes)
+        def forward(self, x):
+            x = F.max_pool2d(F.relu(self.conv1(x)), (2,2))
+            x = F.max_pool2d(F.relu(self.conv2(x)), (2,2))
+            x = x.view(-1, self.num_flat_features(x))
+            x = F.relu(self.fc1(x))
+            x = F.relu(self.fc2(x))
+            x = self.fc3(x)
+            return x
+        def num_flat_features(self, x):
+            size = x.size()[1:]
+            num_features = 1
+            for s in size:
+                num_features *= s
+            return num_features
+    
+    net = LeNet()
+    net = net.to(device)
+
+    class_freq = class_freq.to(device)
+    criterion = nn.CrossEntropyLoss(weight = class_freq)
+    optimizer = optim.Adam(net.parameters(), lr=1e-5)
+    print(net)
+    
+    def get_accuracy(predicted, labels):
+        batch_len, correct= 0, 0
+        batch_len = labels.size(0)
+        correct = (predicted == labels).sum().item()
+        return batch_len, correct
+    
+    def evaluate(model, val_loader):
+        losses= 0
+        num_samples_total=0
+        correct_total=0
+        model.eval()
+        for inputs, labels in val_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            out = model(inputs)
+            _, predicted = torch.max(out, 1)
+            loss = criterion(out, labels)
+            losses += loss.item() 
+            b_len, corr = get_accuracy(predicted, labels)
+            num_samples_total +=b_len
+            correct_total +=corr
+        accuracy = correct_total/num_samples_total
+        losses = losses/len(val_loader)
+        return losses, accuracy
+
 

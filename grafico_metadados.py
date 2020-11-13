@@ -10,7 +10,6 @@ from scipy import stats
 from sklearn.preprocessing import LabelEncoder
 import seaborn as sns
 import matplotlib.pyplot as plt
-import torch
     
 metadata = pd.read_csv('HAM10000_metadata.csv')
 
