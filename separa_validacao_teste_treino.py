@@ -18,7 +18,6 @@ import torch.optim as optim
 from sklearn.metrics import accuracy_score
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(device)
 
 if __name__ == '__main__':
 
@@ -99,8 +98,8 @@ if __name__ == '__main__':
     
     freq = estimar_frequencia(label)
     
-    for i in range(len(label)):
-        print(label[i],":", freq[i])
+    # for i in range(len(label)):
+    #     print(label[i],":", freq[i])
     
     norm_mean = (0.4914, 0.4822, 0.4465)
     norm_std = (0.2023, 0.1994, 0.2010)
@@ -156,9 +155,9 @@ if __name__ == '__main__':
     train_indices = indices['train']
     val_indices = indices['val']
     test_indices = indices['test']
-    print("Imagens de treino:", len(train_indices))
-    print("Imagens de teste", len(test_indices))
-    print("Imagens de validação:", len(val_indices))
+    # print("Imagens de treino:", len(train_indices))
+    # print("Imagens de teste", len(test_indices))
+    # print("Imagens de validação:", len(val_indices))
     
     # CARREGAR O DATASET PRA MEMÓRIA
     SubsetRandomSampler = torch.utils.data.sampler.SubsetRandomSampler
@@ -185,6 +184,7 @@ if __name__ == '__main__':
     # mostrar tais imagens 
     imshow(torchvision.utils.make_grid(imagens))
 
+    #DEFININDO A REDE NEURAL
     class LeNet(nn.Module):
         def __init__(self):
             super(LeNet, self).__init__()
@@ -240,4 +240,49 @@ if __name__ == '__main__':
         losses = losses/len(val_loader)
         return losses, accuracy
 
+    # COMEÇO DO TREINAMENTO DA REDE NEURAL
+    num_epochs = 50
+    accuracy = []
+    val_accuracy = []
+    losses = []
+    val_losses = []
+    
+    for epoch in range(num_epochs):
+        running_loss = 0.0
+        correct_total= 0.0
+        num_samples_total=0.0
+        for i, data in enumerate(train_data_loader):
+            # get the inputs
+            inputs, labels = data
+            inputs, labels = inputs.to(device), labels.to(device)
+            # set the parameter gradients to zero
+            optimizer.zero_grad()
+    
+            # forward + backward + optimize
+            outputs = net(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+            
+            #compute accuracy
+            _, predicted = torch.max(outputs, 1)
+            b_len, corr = get_accuracy(predicted, labels)
+            num_samples_total +=b_len
+            correct_total +=corr
+            running_loss += loss.item()
+    
+        
+        running_loss /= len(train_data_loader)
+        train_accuracy = correct_total/num_samples_total
+        val_loss, val_acc = evaluate(net, validation_data_loader)
+        
+        print('Epoch: %d' %(epoch+1))
+        print('Loss: %.3f  Accuracy:%.3f' %(running_loss, train_accuracy))
+        print('Validation Loss: %.3f  Val Accuracy: %.3f' %(val_loss, val_acc))
+    
+        losses.append(running_loss)
+        val_losses.append(val_loss)
+        accuracy.append(train_accuracy)
+        val_accuracy.append(val_acc)
+    print('Finished Training')
 
