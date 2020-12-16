@@ -244,7 +244,7 @@ if __name__ == '__main__':
         return losses, accuracy
 
     # COMEÇO DO TREINAMENTO DA REDE NEURAL
-    num_epochs = 350
+    num_epochs = 1
     accuracy = []
     val_accuracy = []
     losses = []

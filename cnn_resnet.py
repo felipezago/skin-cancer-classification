@@ -18,12 +18,13 @@ import torch.optim as optim
 from sklearn.metrics import accuracy_score
 import seaborn as sns
 from collections import OrderedDict, Sequence
+from PIL import Image
+from pathlib import Path
 
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-if __name__ == '__main__':
-
+# device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cpu')
+    
+def main():
     class Sampler(object):
         """Classe padrão para todos os exemplificadores
         """
@@ -99,10 +100,10 @@ if __name__ == '__main__':
             class_freq[i] = freq_media / count[i]
         return class_freq
     
-    freq = estimar_frequencia(label)
+    # freq = estimar_frequencia(label)
     
-    # for i in range(len(label)):
-    #     print(label[i],":", freq[i])
+    # # for i in range(len(label)):
+    # #     print(label[i],":", freq[i])
     
     norm_mean = (0.4914, 0.4822, 0.4465)
     norm_std = (0.2023, 0.1994, 0.2010)
@@ -177,15 +178,8 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=(10, 15))
     def imshow(img):
         img = img / 2 + 0.5     
-        npimg = img.numpy()
+        npimg = img.cpu().numpy()
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    
-    # Pegar algumas imagens de treinamento para exibição
-    iterador = iter(train_data_loader)
-    imagens, labels = iterador.next()
-    
-    # mostrar tais imagens 
-    imshow(torchvision.utils.make_grid(imagens))
 
     #DEFININDO A REDE NEURAL
     num_classes = len(classes)
@@ -198,7 +192,7 @@ if __name__ == '__main__':
     class_freq = class_freq.to(device)
     criterion = nn.CrossEntropyLoss(weight = class_freq)
     optimizer = optim.Adam(net.parameters(), lr=1e-5)
-    #print(net)
+    print(net)
     
     def get_accuracy(predicted, labels):
         batch_len, correct= 0, 0
@@ -224,12 +218,11 @@ if __name__ == '__main__':
         losses = losses/len(val_loader)
         return losses, accuracy
     
-    num_epochs = 70
+    num_epochs = 1
     accuracy = []
     val_accuracy = []
     losses = []
     val_losses = []
-    
     
     for epoch in range(num_epochs):
         running_loss = 0.0
@@ -270,6 +263,9 @@ if __name__ == '__main__':
         val_accuracy.append(val_acc)
     print('Finished Training')
     
+    PATH = 'model.pth'
+    #####################3torch.save(net.state_dict(), PATH)
+    
     epoch = range(1, num_epochs+1)
     fig = plt.figure(figsize=(10, 15))
     plt.subplot(2,1,2)
@@ -292,12 +288,75 @@ if __name__ == '__main__':
     plt.show()
     
     fig = plt.figure(figsize=(10, 15))
+    
     dataiter = iter(test_data_loader)
     images, labels = dataiter.next()
+    images, labels = images.to(device), labels.to(device)
+    trans = transforms.Compose([
+                        transforms.Resize((7,7)),
+                        transforms.RandomHorizontalFlip(),
+                        transforms.RandomRotation(degrees=60),
+                        transforms.ToTensor(),
+                        transforms.Normalize(norm_mean, norm_std),
+                        ])
+            
+   # print images
+    # imshow(torchvision.utils.make_grid(images))
+    # print('GroundTruth: ', ' '.join('%7s' % classes[labels[j]] for j in range(4)))
     
-    # print images
-    imshow(torchvision.utils.make_grid(images))
-    print('GroundTruth: ', ' '.join('%5s,  ' % classes[labels[j]] for j in range(len(labels))))
+    # net = torchvision.models.resnet18(pretrained = True)
+
+    # net.fc = nn.Linear(512, num_classes)
+    # net = net.to(device)
+    # net.load_state_dict(torch.load(PATH))
+
+    # image = Image.open(Path('classes/df/ISIC_0024318.jpg')) 
+    # transformed= trans(image).unsqueeze_(0)
+    # outputs = net(images)
+
+    # print(outputs)
+    # _, predicted = torch.max(outputs.data, 1)
+    # print(predicted)
+    # # print(classes[predicted])
+
+
+    # print('Predicted: ', ' '.join('%7s' % classes[predicted[j]]
+    #                               for j in range(4)))  
+
+    correct = 0
+    total = 0
+    net.eval()
+    with torch.no_grad():
+        for data in test_data_loader:
+            images, labels = data
+            images, labels = images.to(device), labels.to(device)
+            outputs = net(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+            
+    
+    print('Accuracy of the network on the 10000 test images: %d %%' % (
+        100 * correct / total))
+    
+    class_correct = list(0. for i in range(10))
+    class_total = list(0. for i in range(10))
+    with torch.no_grad():
+        for data in test_data_loader:
+            images, labels = data
+            images, labels = images.to(device), labels.to(device)
+            outputs = net(images)
+            _, predicted = torch.max(outputs, 1)
+            c = (predicted == labels).squeeze()
+            for i in range(3):
+                label = labels[i]
+                class_correct[label] += c[i].item()
+                class_total[label] += 1
+    
+    
+    for i in range(len(classes)):
+        print('Accuracy of %5s : %2d %%' % (
+            classes[i], 100 * class_correct[i] / class_total[i]))
     
     correct = 0
     total = 0
@@ -331,25 +390,8 @@ if __name__ == '__main__':
     for i in range(len(classes)):
         print('Accuracy of %5s : %2d %%' % (
             classes[i], 100 * class_correct[i] / class_total[i]))
-        
-    class_correct = list(0. for i in range(len(classes)))
-    class_total = list(1e-7 for i in range(len(classes)))
-    net.eval()
-    with torch.no_grad():
-        for data in validation_data_loader:
-            images, labels = data
-            images, labels = images.to(device), labels.to(device)
-            outputs = net(images)
-            _, predicted = torch.max(outputs, 1)
-            c = (predicted == labels).squeeze()
-            for i in range(3):
-                label = labels[i]
-                class_correct[label] += c[i].item()
-                class_total[label] += 1
-    
-    for i in range(len(classes)):
-        print('Accuracy of %5s : %2d %%' % (
-            classes[i], 100 * class_correct[i] / class_total[i]))
+
+    image = Image.open(Path('classes/df/ISIC_0024318.jpg'))        
         
     confusion_matrix = torch.zeros(len(classes), len(classes))
     with torch.no_grad():
@@ -374,167 +416,6 @@ if __name__ == '__main__':
     ax.xaxis.set_ticklabels(['akiec','bcc','bkl','df', 'mel', 'nv','vasc'], size=15); \
     ax.yaxis.set_ticklabels(['akiec','bcc','bkl','df','mel','nv','vasc'], size=15);
 
-    class _BaseWrapper(object):
-        """
-        Please modify forward() and backward() according to your task.
-        """
-    
-        def __init__(self, model):
-            super(_BaseWrapper, self).__init__()
-            self.device = next(model.parameters()).device
-            self.model = model
-            self.handlers = []  # a set of hook function handlers
-    
-        def _encode_one_hot(self, ids):
-            one_hot = torch.zeros_like(self.logits).to(self.device)
-            one_hot.scatter_(1, ids, 1.0)
-            return one_hot
-    
-        def forward(self, image):
-            """
-            Simple classification
-            """
-            self.model.zero_grad()
-            self.logits = self.model(image)
-            self.probs = F.softmax(self.logits, dim=1)
-            return self.probs.sort(dim=1, descending=True)
-    
-        def backward(self, ids):
-            """
-            Class-specific backpropagation
-            Either way works:
-            1. self.logits.backward(gradient=one_hot, retain_graph=True)
-            2. (self.logits * one_hot).sum().backward(retain_graph=True)
-            """
-    
-            one_hot = self._encode_one_hot(ids)
-            self.logits.backward(gradient=one_hot, retain_graph=True)
-    
-        def generate(self):
-            raise NotImplementedError
-    
-        def remove_hook(self):
-            """
-            Remove all the forward/backward hook functions
-            """
-            for handle in self.handlers:
-                handle.remove()
-    
-    
-    class GradCAM(_BaseWrapper):
-        """
-        "Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization"
-        https://arxiv.org/pdf/1610.02391.pdf
-        Look at Figure 2 on page 4
-        """
-    
-        def __init__(self, model, candidate_layers=None):
-            super(GradCAM, self).__init__(model)
-            self.fmap_pool = OrderedDict()
-            self.grad_pool = OrderedDict()
-            self.candidate_layers = candidate_layers  # list
-    
-            def forward_hook(key):
-                def forward_hook_(module, input, output):
-                    # Save featuremaps
-                    self.fmap_pool[key] = output.detach()
-    
-                return forward_hook_
-    
-            def backward_hook(key):
-                def backward_hook_(module, grad_in, grad_out):
-                    # Save the gradients correspond to the featuremaps
-                    self.grad_pool[key] = grad_out[0].detach()
-    
-                return backward_hook_
-    
-            # If any candidates are not specified, the hook is registered to all the layers.
-            for name, module in self.model.named_modules():
-                if self.candidate_layers is None or name in self.candidate_layers:
-                    self.handlers.append(module.register_forward_hook(forward_hook(name)))
-                    self.handlers.append(module.register_backward_hook(backward_hook(name)))
-    
-        def _find(self, pool, target_layer):
-            if target_layer in pool.keys():
-                return pool[target_layer]
-            else:
-                raise ValueError("Invalid layer name: {}".format(target_layer))
-    
-        def _compute_grad_weights(self, grads):
-            return F.adaptive_avg_pool2d(grads, 1)
-    
-        def forward(self, image):
-            self.image_shape = image.shape[2:]
-            return super(GradCAM, self).forward(image)
-    
-        def generate(self, target_layer):
-            fmaps = self._find(self.fmap_pool, target_layer)
-            grads = self._find(self.grad_pool, target_layer)
-            weights = self._compute_grad_weights(grads)
-    
-            gcam = torch.mul(fmaps, weights).sum(dim=1, keepdim=True)
-            gcam = F.relu(gcam)
-    
-            gcam = F.interpolate(
-                gcam, self.image_shape, mode="bilinear", align_corners=False
-            )
-    
-            B, C, H, W = gcam.shape
-            gcam = gcam.view(B, -1)
-            gcam -= gcam.min(dim=1, keepdim=True)[0]
-            gcam /= gcam.max(dim=1, keepdim=True)[0]
-            gcam = gcam.view(B, C, H, W)
-    
-            return gcam
-        
-    def demo2(image, label, model):
-        """
-        Generate Grad-CAM
-        """
-        # Model
-        model = model
-        model.to(device)
-        model.eval()
-    
-        # The layers
-        target_layers = ["layer4"]
-        target_class = label
-    
-        # Images
-        images = image.unsqueeze(0)
-        gcam = GradCAM(model=model)
-        probs, ids = gcam.forward(images)
-        ids_ = torch.LongTensor([[target_class]] * len(images)).to(device)
-        gcam.backward(ids=ids_)
-    
-        for target_layer in target_layers:
-            print("Generating Grad-CAM @{}".format(target_layer))
-    
-            # Grad-CAM
-            regions = gcam.generate(target_layer=target_layer)
-            for j in range(len(images)):
-                print(
-                    "\t#{}: {} ({:.5f})".format(
-                        j, classes[target_class], float(probs[ids == target_class])
-                    )
-                )
-                
-                gcam=regions[j, 0]
-                plt.imshow(gcam.cpu())
-                plt.show()
-                
-    image, label = next(iter(test_data_loader))
-    # Load the model
-    model = net
-    # Grad cam
-    demo2(image[0].to(device), label[0].to(device), model)
-    
-    
-    image = np.transpose(image[0], (1,2,0))
-    image2  = np.add(np.multiply(image.numpy(), np.array(norm_std)) ,np.array(norm_mean))
-    print("True Class: ", classes[label[0].cpu()])
-    plt.imshow(image)
-    plt.show()
-    plt.imshow(image2)
-    plt.show()
-    
+
+if __name__ == '__main__':
+    main()
