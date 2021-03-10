@@ -21,8 +21,8 @@ from collections import OrderedDict, Sequence
 from PIL import Image
 from pathlib import Path
 
-# device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-device = torch.device('cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+#device = torch.device('cpu')
     
 def main():
     class Sampler(object):
@@ -218,76 +218,76 @@ def main():
         losses = losses/len(val_loader)
         return losses, accuracy
     
-    num_epochs = 1
-    accuracy = []
-    val_accuracy = []
-    losses = []
-    val_losses = []
+    # num_epochs = 1
+    # accuracy = []
+    # val_accuracy = []
+    # losses = []
+    # val_losses = []
     
-    for epoch in range(num_epochs):
-        running_loss = 0.0
-        correct_total= 0.0
-        num_samples_total=0.0
-        for i, data in enumerate(train_data_loader):
-            # get the inputs
-            inputs, labels = data
-            inputs, labels = inputs.to(device), labels.to(device)
-            # set the parameter gradients to zero
-            optimizer.zero_grad()
+    # for epoch in range(num_epochs):
+    #     running_loss = 0.0
+    #     correct_total= 0.0
+    #     num_samples_total=0.0
+    #     for i, data in enumerate(train_data_loader):
+    #         # get the inputs
+    #         inputs, labels = data
+    #         inputs, labels = inputs.to(device), labels.to(device)
+    #         # set the parameter gradients to zero
+    #         optimizer.zero_grad()
     
-            # forward + backward + optimize
-            outputs = net(inputs)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
+    #         # forward + backward + optimize
+    #         outputs = net(inputs)
+    #         loss = criterion(outputs, labels)
+    #         loss.backward()
+    #         optimizer.step()
             
-            #compute accuracy
-            _, predicted = torch.max(outputs, 1)
-            b_len, corr = get_accuracy(predicted, labels)
-            num_samples_total +=b_len
-            correct_total +=corr
-            running_loss += loss.item()
+    #         #compute accuracy
+    #         _, predicted = torch.max(outputs, 1)
+    #         b_len, corr = get_accuracy(predicted, labels)
+    #         num_samples_total +=b_len
+    #         correct_total +=corr
+    #         running_loss += loss.item()
     
         
-        running_loss /= len(train_data_loader)
-        train_accuracy = correct_total/num_samples_total
-        val_loss, val_acc = evaluate(net, validation_data_loader)
+    #     running_loss /= len(train_data_loader)
+    #     train_accuracy = correct_total/num_samples_total
+    #     val_loss, val_acc = evaluate(net, validation_data_loader)
         
-        print('Epoch: %d' %(epoch+1))
-        print('Loss: %.3f  Accuracy:%.3f' %(running_loss, train_accuracy))
-        print('Validation Loss: %.3f  Val Accuracy: %.3f' %(val_loss, val_acc))
+    #     print('Epoch: %d' %(epoch+1))
+    #     print('Loss: %.3f  Accuracy:%.3f' %(running_loss, train_accuracy))
+    #     print('Validation Loss: %.3f  Val Accuracy: %.3f' %(val_loss, val_acc))
     
-        losses.append(running_loss)
-        val_losses.append(val_loss)
-        accuracy.append(train_accuracy)
-        val_accuracy.append(val_acc)
-    print('Finished Training')
+    #     losses.append(running_loss)
+    #     val_losses.append(val_loss)
+    #     accuracy.append(train_accuracy)
+    #     val_accuracy.append(val_acc)
+    # print('Finished Training')
     
     PATH = 'model.pth'
     #####################3torch.save(net.state_dict(), PATH)
     
-    epoch = range(1, num_epochs+1)
-    fig = plt.figure(figsize=(10, 15))
-    plt.subplot(2,1,2)
-    plt.plot(epoch, losses, label='Training loss')
-    plt.plot(epoch, val_losses, label='Validation loss')
-    plt.title('Training and Validation Loss')
-    plt.xlabel('Epochs')
-    plt.legend()
-    plt.figure()
-    plt.show()
+    # epoch = range(1, num_epochs+1)
+    # fig = plt.figure(figsize=(10, 15))
+    # plt.subplot(2,1,2)
+    # plt.plot(epoch, losses, label='Training loss')
+    # plt.plot(epoch, val_losses, label='Validation loss')
+    # plt.title('Training and Validation Loss')
+    # plt.xlabel('Epochs')
+    # plt.legend()
+    # plt.figure()
+    # plt.show()
     
-    fig = plt.figure(figsize=(10, 15))
-    plt.subplot(2,1,2)
-    plt.plot(epoch, accuracy, label='Training accuracy')
-    plt.plot(epoch, val_accuracy, label='Validation accuracy')
-    plt.title('Training and Validation Accuracy')
-    plt.xlabel('Epochs')
-    plt.legend()
-    plt.figure()
-    plt.show()
+    # fig = plt.figure(figsize=(10, 15))
+    # plt.subplot(2,1,2)
+    # plt.plot(epoch, accuracy, label='Training accuracy')
+    # plt.plot(epoch, val_accuracy, label='Validation accuracy')
+    # plt.title('Training and Validation Accuracy')
+    # plt.xlabel('Epochs')
+    # plt.legend()
+    # plt.figure()
+    # plt.show()
     
-    fig = plt.figure(figsize=(10, 15))
+    # fig = plt.figure(figsize=(10, 15))
     
     dataiter = iter(test_data_loader)
     images, labels = dataiter.next()
@@ -301,27 +301,27 @@ def main():
                         ])
             
    # print images
-    # imshow(torchvision.utils.make_grid(images))
-    # print('GroundTruth: ', ' '.join('%7s' % classes[labels[j]] for j in range(4)))
+    imshow(torchvision.utils.make_grid(images))
+    print('Classe Real: ', ' '.join('%7s' % classes[labels[j]] for j in range(4)))
     
-    # net = torchvision.models.resnet18(pretrained = True)
+    net = torchvision.models.resnet18(pretrained = True)
 
-    # net.fc = nn.Linear(512, num_classes)
-    # net = net.to(device)
-    # net.load_state_dict(torch.load(PATH))
+    net.fc = nn.Linear(512, num_classes)
+    net = net.to(device)
+    net.load_state_dict(torch.load(PATH))
 
-    # image = Image.open(Path('classes/df/ISIC_0024318.jpg')) 
-    # transformed= trans(image).unsqueeze_(0)
-    # outputs = net(images)
+    image = Image.open(Path('classes/df/ISIC_0024318.jpg')) 
+    transformed= trans(image).unsqueeze_(0)
+    outputs = net(images)
 
-    # print(outputs)
-    # _, predicted = torch.max(outputs.data, 1)
-    # print(predicted)
-    # # print(classes[predicted])
+    print(outputs)
+    _, predicted = torch.max(outputs.data, 1)
+    print(predicted)
+    # print(classes[predicted])
 
 
-    # print('Predicted: ', ' '.join('%7s' % classes[predicted[j]]
-    #                               for j in range(4)))  
+    print('Predito: ', ' '.join('%7s' % classes[predicted[j]]
+                                  for j in range(4)))  
 
     correct = 0
     total = 0
@@ -358,63 +358,63 @@ def main():
         print('Accuracy of %5s : %2d %%' % (
             classes[i], 100 * class_correct[i] / class_total[i]))
     
-    correct = 0
-    total = 0
-    net.eval()
-    with torch.no_grad():
-        for data in test_data_loader:
-            images, labels = data
-            images, labels = images.to(device), labels.to(device)
-            outputs = net(images)
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
+    # correct = 0
+    # total = 0
+    # net.eval()
+    # with torch.no_grad():
+    #     for data in test_data_loader:
+    #         images, labels = data
+    #         images, labels = images.to(device), labels.to(device)
+    #         outputs = net(images)
+    #         _, predicted = torch.max(outputs.data, 1)
+    #         total += labels.size(0)
+    #         correct += (predicted == labels).sum().item()
     
-    print('Accuracy of the network on the test images: %d %%' % (
-        100 * correct / total))
+    # print('Accuracy of the network on the test images: %d %%' % (
+    #     100 * correct / total))
     
-    class_correct = list(0. for i in range(len(classes)))
-    class_total = list(1e-7 for i in range(len(classes)))
-    with torch.no_grad():
-        for data in test_data_loader:
-            images, labels = data
-            images, labels = images.to(device), labels.to(device)
-            outputs = net(images)
-            _, predicted = torch.max(outputs, 1)
-            c = (predicted == labels).squeeze()
-            for i in range(3):
-                label = labels[i]
-                class_correct[label] += c[i].item()
-                class_total[label] += 1
+    # class_correct = list(0. for i in range(len(classes)))
+    # class_total = list(1e-7 for i in range(len(classes)))
+    # with torch.no_grad():
+    #     for data in test_data_loader:
+    #         images, labels = data
+    #         images, labels = images.to(device), labels.to(device)
+    #         outputs = net(images)
+    #         _, predicted = torch.max(outputs, 1)
+    #         c = (predicted == labels).squeeze()
+    #         for i in range(3):
+    #             label = labels[i]
+    #             class_correct[label] += c[i].item()
+    #             class_total[label] += 1
     
-    for i in range(len(classes)):
-        print('Accuracy of %5s : %2d %%' % (
-            classes[i], 100 * class_correct[i] / class_total[i]))
+    # for i in range(len(classes)):
+    #     print('Accuracy of %5s : %2d %%' % (
+    #         classes[i], 100 * class_correct[i] / class_total[i]))
 
-    image = Image.open(Path('classes/df/ISIC_0024318.jpg'))        
+    # image = Image.open(Path('classes/df/ISIC_0024318.jpg'))        
         
-    confusion_matrix = torch.zeros(len(classes), len(classes))
-    with torch.no_grad():
-        for data in test_data_loader:
-            images, labels = data
-            images, labels = images.to(device), labels.to(device)
-            outputs = net(images)
-            _, predicted = torch.max(outputs, 1)
-            for t, p in zip(labels.view(-1), predicted.view(-1)):
-                    confusion_matrix[t.long(), p.long()] += 1
+    # confusion_matrix = torch.zeros(len(classes), len(classes))
+    # with torch.no_grad():
+    #     for data in test_data_loader:
+    #         images, labels = data
+    #         images, labels = images.to(device), labels.to(device)
+    #         outputs = net(images)
+    #         _, predicted = torch.max(outputs, 1)
+    #         for t, p in zip(labels.view(-1), predicted.view(-1)):
+    #                 confusion_matrix[t.long(), p.long()] += 1
     
-    print(confusion_matrix)
-    cm = confusion_matrix.numpy()    
+    # print(confusion_matrix)
+    # cm = confusion_matrix.numpy()    
     
-    fig,ax= plt.subplots(figsize=(7,7))
-    sns.heatmap(cm / (cm.astype(np.float).sum(axis=1) + 1e-9), annot=False, ax=ax)
+    # fig,ax= plt.subplots(figsize=(7,7))
+    # sns.heatmap(cm / (cm.astype(np.float).sum(axis=1) + 1e-9), annot=False, ax=ax)
     
-    # labels, title and ticks
-    ax.set_xlabel('Predicted', size=25);
-    ax.set_ylabel('True', size=25); 
-    ax.set_title('Confusion Matrix', size=25); 
-    ax.xaxis.set_ticklabels(['akiec','bcc','bkl','df', 'mel', 'nv','vasc'], size=15); \
-    ax.yaxis.set_ticklabels(['akiec','bcc','bkl','df','mel','nv','vasc'], size=15);
+    # # labels, title and ticks
+    # ax.set_xlabel('Predicted', size=25);
+    # ax.set_ylabel('True', size=25); 
+    # ax.set_title('Confusion Matrix', size=25); 
+    # ax.xaxis.set_ticklabels(['akiec','bcc','bkl','df', 'mel', 'nv','vasc'], size=15); \
+    # ax.yaxis.set_ticklabels(['akiec','bcc','bkl','df','mel','nv','vasc'], size=15);
 
 
 if __name__ == '__main__':

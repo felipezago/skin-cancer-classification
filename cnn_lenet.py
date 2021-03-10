@@ -186,6 +186,9 @@ if __name__ == '__main__':
     
     # mostrar tais imagens 
     imshow(torchvision.utils.make_grid(imagens))
+    
+    for j in range(len(labels)):
+        print(labels[j].to(int))
 
     #DEFININDO A REDE NEURAL
     class LeNet(nn.Module):
