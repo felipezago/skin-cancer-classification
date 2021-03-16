@@ -19,8 +19,10 @@ from sklearn.metrics import accuracy_score
 import seaborn as sns
 from collections import OrderedDict, Sequence
 
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+#device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+#device = 'cuda'
+#print(device)
+device = 'cpu'
 
 if __name__ == '__main__':
 
@@ -544,3 +546,4 @@ if __name__ == '__main__':
     plt.show()
     plt.imshow(image2)
     plt.show()
+

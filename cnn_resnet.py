@@ -102,7 +102,7 @@ def main():
             class_freq[i] = freq_media / count[i]
         return class_freq
     
-    # freq = estimar_frequencia(label)
+    #freq = estimar_frequencia(label)
     
     # # for i in range(len(label)):
     # #     print(label[i],":", freq[i])
