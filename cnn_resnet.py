@@ -23,6 +23,8 @@ from pathlib import Path
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #device = torch.device('cpu')
+
+print(torch.cuda.is_available())
     
 def main():
     class Sampler(object):
@@ -308,7 +310,7 @@ def main():
 
     net.fc = nn.Linear(512, num_classes)
     net = net.to(device)
-    net.load_state_dict(torch.load(PATH))
+    net.load_state_dict(torch.load(PATH, map_location=torch.device('cpu')))
 
     image = Image.open(Path('classes/df/ISIC_0024318.jpg')) 
     transformed= trans(image).unsqueeze_(0)
@@ -393,28 +395,28 @@ def main():
 
     # image = Image.open(Path('classes/df/ISIC_0024318.jpg'))        
         
-    # confusion_matrix = torch.zeros(len(classes), len(classes))
-    # with torch.no_grad():
-    #     for data in test_data_loader:
-    #         images, labels = data
-    #         images, labels = images.to(device), labels.to(device)
-    #         outputs = net(images)
-    #         _, predicted = torch.max(outputs, 1)
-    #         for t, p in zip(labels.view(-1), predicted.view(-1)):
-    #                 confusion_matrix[t.long(), p.long()] += 1
+    confusion_matrix = torch.zeros(len(classes), len(classes))
+    with torch.no_grad():
+        for data in test_data_loader:
+            images, labels = data
+            images, labels = images.to(device), labels.to(device)
+            outputs = net(images)
+            _, predicted = torch.max(outputs, 1)
+            for t, p in zip(labels.view(-1), predicted.view(-1)):
+                    confusion_matrix[t.long(), p.long()] += 1
     
-    # print(confusion_matrix)
-    # cm = confusion_matrix.numpy()    
+    print(confusion_matrix)
+    cm = confusion_matrix.numpy()    
     
-    # fig,ax= plt.subplots(figsize=(7,7))
-    # sns.heatmap(cm / (cm.astype(np.float).sum(axis=1) + 1e-9), annot=False, ax=ax)
+    fig,ax= plt.subplots(figsize=(7,7))
+    #sns.heatmap(cm / (cm.astype(np.float).sum(axis=1) + 1e-9), annot=False, ax=ax)
     
-    # # labels, title and ticks
-    # ax.set_xlabel('Predicted', size=25);
-    # ax.set_ylabel('True', size=25); 
-    # ax.set_title('Confusion Matrix', size=25); 
-    # ax.xaxis.set_ticklabels(['akiec','bcc','bkl','df', 'mel', 'nv','vasc'], size=15); \
-    # ax.yaxis.set_ticklabels(['akiec','bcc','bkl','df','mel','nv','vasc'], size=15);
+    # labels, title and ticks
+    ax.set_xlabel('Predicted', size=25);
+    ax.set_ylabel('True', size=25); 
+    ax.set_title('Confusion Matrix', size=25); 
+    ax.xaxis.set_ticklabels(['akiec','bcc','bkl','df', 'mel', 'nv','vasc'], size=15); \
+    ax.yaxis.set_ticklabels(['akiec','bcc','bkl','df','mel','nv','vasc'], size=15);
 
 
 if __name__ == '__main__':
