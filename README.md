@@ -31,7 +31,7 @@ Para mais informações, acesse: https://developer.nvidia.com/cuda-toolkit
 
 Para instalação desses pacotes deve ser utilizado o seguinte comando no terminal do ambiente criado no Anaconda:
 
-# conda install pytorch torchvision cudatoolkit=10.2 -c pytorch
+### conda install pytorch torchvision cudatoolkit=10.2 -c pytorch
 
 Pandas
 Pandas é um pacote Python que fornece importantes ferramentas de análise de dados e estruturas de dados de alta performance fáceis de usar.
