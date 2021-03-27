@@ -31,7 +31,7 @@ Para mais informações, acesse: https://developer.nvidia.com/cuda-toolkit
 
 Para instalação desses pacotes deve ser utilizado o seguinte comando no terminal do ambiente criado no Anaconda:
 
-conda install pytorch torchvision cudatoolkit=10.2 -c pytorch
+#conda install pytorch torchvision cudatoolkit=10.2 -c pytorch
 
 Pandas
 Pandas é um pacote Python que fornece importantes ferramentas de análise de dados e estruturas de dados de alta performance fáceis de usar.
@@ -40,7 +40,7 @@ Para mais informações, acesse: https://pandas.pydata.org/
 
 Para instalação do Pandas deve ser utilizado o seguinte comando no terminal do ambiente criado no Anaconda:
 
-conda install pandas
+#conda install pandas
 
 MatPlotLib 
 Matplotlib é uma biblioteca que permite a visualização animada ou interativa de dados estatísticos, em Python. Nesse trabalho, a biblioteca será utilizada para criação e apresentação de gráficos que podem facilitar o entendimento de alguns resultados obtidos.
@@ -49,7 +49,7 @@ Para mais informações, acesse: https://matplotlib.org/stable/index.html
 
 Para instalação do Matplotlib deve ser utilizado o seguinte comando no terminal do ambiente criado no Anaconda:
 
-conda install matplotlib
+#conda install matplotlib
 
 Scikit Learn
 Scikit Learn ou sklearn é uma biblioteca para a linguagem de programação python utilizada para aplicações de aprendizado de máquina. Ela dispõe de várias ferramentas para implementação de vários algoritmos de classificação, inclusive os que foram utilizados no nosso trabalho.
@@ -60,7 +60,7 @@ Para mais informações, acesse: http://scikit-learn.org/
 
 Para instalação do Sklearn deve ser utilizado o seguinte comando no terminal do ambiente criado no Anaconda:
 
-conda install scikit-learn
+#conda install scikit-learn
 
 Seaborn
 Seaborn é uma biblioteca de visualização de dados em Python baseada em Matplotlib. Ela fornece uma interface de alto nível para criação de gráficos que seriam de manipulação complexa utilizando a biblioteca Matplotlib na criação de informações estatísticas atraentes e informativas.
@@ -69,7 +69,7 @@ Para mais informações, acesse: https://seaborn.pydata.org/
 
 Para instalação do Seaborn deve ser utilizado o seguinte comando no terminal do ambiente criado no Anaconda:
 
-conda install seaborn
+#conda install seaborn
 
 ImageIO
 ImageIO é uma biblioteca Python que fornece uma interface fácil para ler e gravar uma ampla variedade de dados de imagem, incluindo imagens animadas e formatos científicos.
@@ -78,6 +78,6 @@ Para mais informações, acesse: https://imageio.github.io
 
 Para instalação do ImageIO deve ser utilizado o seguinte comando no terminal do ambiente criado no Anaconda:
 
-conda install imageio
+#conda install imageio
  
  
