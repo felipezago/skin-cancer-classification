@@ -71,7 +71,7 @@ Para instalação do Seaborn deve ser utilizado o seguinte comando no terminal d
 
 ### conda install seaborn
 
-ImageIO
+#ImageIO
 ImageIO é uma biblioteca Python que fornece uma interface fácil para ler e gravar uma ampla variedade de dados de imagem, incluindo imagens animadas e formatos científicos.
 
 Para mais informações, acesse: https://imageio.github.io
